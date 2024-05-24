@@ -3,8 +3,9 @@ from django.http import HttpResponse
 from rest_framework import viewsets, generics, status, parsers
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from theses.models import User, Admin, Lecturer, Student, Faculty, Major, SchoolYear, Position, Council, CouncilDetail, \
-    Role, Thesis, ThesisScore, ScoreComponent, ScoreColumn, ScoreDetail, Supervisor
+from theses.models import User, DepartmentAdmin, Lecturer, Student, Department, Major, SchoolYear, Position, Council, \
+    CouncilDetail, Role, Thesis, ThesisScore, ScoreComponent, ScoreColumn, ScoreDetail, Supervisor, Notification, \
+    NotificationUser
 from theses import serializers, paginators
 
 
@@ -13,51 +14,92 @@ class RoleViewSet(viewsets.ModelViewSet):  #ModelViewSet: lấy tất cả các 
     serializer_class = serializers.RoleSerializer
 
 
-class ThesisViewSet(viewsets.ViewSet, generics.ListAPIView):
+class ThesisViewSet(viewsets.ModelViewSet):
     queryset = Thesis.objects.all()
     serializer_class = serializers.ThesisSerializer
 
 
-class CouncilViewSet(viewsets.ViewSet, generics.ListAPIView):
+class CouncilViewSet(viewsets.ModelViewSet):
     queryset = Council.objects.all()
     serializer_class = serializers.CouncilSerializer
 
 
-class LecturerViewSet(viewsets.ViewSet, generics.ListAPIView):
+class DepartmentAdminViewSet(viewsets.ModelViewSet):
+    queryset = DepartmentAdmin.objects.all()
+    serializer_class = serializers.DepartmentAdminSerializer
+
+
+class LecturerViewSet(viewsets.ModelViewSet):
     queryset = Lecturer.objects.all()
     serializer_class = serializers.LecturerSerializer
 
 
-class StudentViewSet(viewsets.ViewSet, generics.ListAPIView):
+class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = serializers.StudentSerializer
 
 
-class FacultyViewSet(viewsets.ViewSet, generics.ListAPIView):
-    queryset = Faculty.objects.all()
-    serializer_class = serializers.FacultySerializer
+class DepartmentViewSet(viewsets.ModelViewSet):
+    queryset = Department.objects.all()
+    serializer_class = serializers.DepartmentSerializer
 
 
-class MajorViewSet(viewsets.ViewSet, generics.ListAPIView):
+class MajorViewSet(viewsets.ModelViewSet):
     queryset = Major.objects.all()
     serializer_class = serializers.MajorSerializer
 
 
-class SchoolYearViewSet(viewsets.ViewSet, generics.ListAPIView):
+class SchoolYearViewSet(viewsets.ModelViewSet):
     queryset = SchoolYear.objects.all()
     serializer_class = serializers.SchoolYearSerializer
 
 
-class PositionViewSet(viewsets.ViewSet, generics.ListAPIView):
+class PositionViewSet(viewsets.ModelViewSet):
     queryset = Position.objects.all()
     serializer_class = serializers.PositionSerializer
 
 
-class SupervisorViewSet(viewsets.ViewSet, generics.ListAPIView):
+class SupervisorViewSet(viewsets.ModelViewSet):
     queryset = Supervisor.objects.all()
     serializer_class = serializers.SupervisorSerializer
 
-class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
+
+class CouncilDetailViewSet(viewsets.ModelViewSet):
+    queryset = CouncilDetail.objects.all()
+    serializer_class = serializers.CouncilDetailSerializer
+
+
+class ThesisScoreViewSet(viewsets.ModelViewSet):
+    queryset = ThesisScore.objects.all()
+    serializer_class = serializers.ThesisScoreSerializer
+
+
+class ScoreComponentViewSet(viewsets.ModelViewSet):
+    queryset = ScoreComponent.objects.all()
+    serializer_class = serializers.ScoreComponentSerializer
+
+
+class ScoreColumnViewSet(viewsets.ModelViewSet):
+    queryset = ScoreColumn.objects.all()
+    serializer_class = serializers.ScoreColumnSerializer
+
+
+class ScoreDetailViewSet(viewsets.ModelViewSet):
+    queryset = ScoreDetail.objects.all()
+    serializer_class = serializers.ScoreDetailSerializer
+
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = serializers.NotificationSerializer
+
+
+class NotificationUserViewSet(viewsets.ModelViewSet):
+    queryset = NotificationUser.objects.all()
+    serializer_class = serializers.NotificationSerializer
+
+
+class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     parser_classes = [parsers.MultiPartParser, ]

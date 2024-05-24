@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from theses.models import User, Admin, Lecturer, Student, Faculty, Major, SchoolYear, Position, Council, CouncilDetail, \
-    Role, Thesis, ThesisScore, ScoreComponent, ScoreColumn, ScoreDetail, Supervisor
+from theses.models import User, DepartmentAdmin, Lecturer, Student, Department, Major, SchoolYear, Position, Council, \
+    CouncilDetail, Role, Thesis, ThesisScore, ScoreComponent, ScoreColumn, ScoreDetail, Supervisor, Notification, NotificationUser
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -33,9 +33,9 @@ class StudentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FacultySerializer(serializers.ModelSerializer):
+class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Faculty
+        model = Department
         fields = '__all__'
 
 
@@ -60,6 +60,60 @@ class PositionSerializer(serializers.ModelSerializer):
 class SupervisorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supervisor
+        fields = '__all__'
+
+
+class CouncilDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CouncilDetail
+        fields = '__all__'
+
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = '__all__'
+
+
+class DepartmentAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DepartmentAdmin
+        fields = '__all__'
+
+
+class ScoreComponentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScoreComponent
+        fields = '__all__'
+
+
+class ScoreColumnSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScoreColumn
+        fields = '__all__'
+
+
+class ThesisScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ThesisScore
+        fields = '__all__'
+
+
+class ScoreDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScoreDetail
+        fields = '__all__'
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
+
+
+class NotificationUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotificationUser
         fields = '__all__'
 
 
