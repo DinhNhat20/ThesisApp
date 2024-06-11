@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, re_path, include
 from rest_framework import routers
 from theses import views
+from .admin import admin_site
 
 r = routers.DefaultRouter()
 r.register('roles', views.RoleViewSet, 'roles')
@@ -23,7 +24,10 @@ r.register('score_details', views.ScoreDetailViewSet, 'score_detail')
 r.register('notifications', views.NotificationViewSet, 'notification')
 r.register('notification_users', views.NotificationUserViewSet, 'notification_user')
 r.register('users', views.UserViewSet, 'users')
+r.register('lecturer-councils', views.LecturerCouncilsViewSet, 'lecturer-councils')
 
 urlpatterns = [
-    path('', include(r.urls))
+    path('', include(r.urls)),
+    path('admin/', admin_site.urls),
+    path('login/', views.user_login, name='login')
 ]

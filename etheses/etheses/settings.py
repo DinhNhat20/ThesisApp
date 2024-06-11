@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-j7%+2%u9m4o&sb)3a8b4z-$e)97wua4is7r^zrv=qta^byfj=+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.1.8']
 
 # Application definition
 
@@ -40,13 +40,22 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'rest_framework',
     'drf_yasg',
+    'oauth2_provider',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    )
+}
 
 CKEDITOR_UPLOAD_PATH = "ckeditor/images"
 
 AUTH_USER_MODEL = 'theses.User'
 
 MEDIA_ROOT = '%s/theses/static/' % BASE_DIR
+
+OAUTH2_PROVIDER = {'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore'}
 
 import cloudinary
 
@@ -141,3 +150,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CLIENT_ID = 'SvkLUliPsUwRLEhh6Nz80dvajQC8BOvD9Qeontuc'
+CLIENT_SECRET = 'AiS3TLncOMr3bQkTiReStrQZB8as5uGWS1NrOWstVL531Wzo868eCAksZS9FYlsOwBaq8Sq6pagaKXEMIyDzUl1MJWTx5i0AmR8xXqOR5gPvmzlIvfQzgl906WOXF6r1'
