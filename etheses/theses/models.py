@@ -1,3 +1,5 @@
+from datetime import timezone
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from ckeditor.fields import RichTextField
@@ -29,8 +31,10 @@ class User(AbstractUser):
 class DepartmentAdmin(models.Model):
     code = models.CharField(max_length=10, null=False)
     full_name = models.CharField(max_length=50, null=False)
+    birthday = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=15, null=False)
     phone = models.CharField(max_length=10, null=False)
+    address = models.CharField(max_length=100, null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 
     def __str__(self):
@@ -116,6 +120,28 @@ class Thesis(BaseModel):
     council = models.ForeignKey(Council, on_delete=models.PROTECT)
     lecturers = models.ManyToManyField('Lecturer', through='Supervisor', null=True, blank=True)
 
+    def average_score(self):
+        total_score = 0.0
+        count = 0
+
+        # Lấy danh sách các ScoreDetail của các ThesisScore của đối tượng Thesis hiện tại
+        score_details = ScoreDetail.objects.filter(thesis_score__thesis=self)
+
+        for score_detail in score_details:
+            total_score += score_detail.score
+            count += 1
+
+        if count > 0:
+            average = round(total_score / count, 2)
+        else:
+            average = 0.0  # hoặc giá trị mặc định khác nếu không có điểm
+
+        # Cập nhật trường total_score và lưu đối tượng Thesis
+        self.total_score = average
+        self.save(update_fields=['total_score'])
+
+        return average
+
     def __str__(self):
         return self.code
 
@@ -138,7 +164,7 @@ class Student(models.Model):
     gpa = models.FloatField()
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     major = models.ForeignKey(Major, on_delete=models.PROTECT)
-    thesis = models.ForeignKey(Thesis, on_delete=models.PROTECT)
+    thesis = models.ForeignKey(Thesis, on_delete=models.PROTECT, null=True, blank=True)
 
     def __str__(self):
         return self.full_name
@@ -161,7 +187,7 @@ class ScoreColumn(models.Model):
         return self.name
 
 
-class ThesisScore(models.Model):
+class ThesisScore(BaseModel):
     council_detail = models.ForeignKey(CouncilDetail, on_delete=models.PROTECT)
     thesis = models.ForeignKey(Thesis, on_delete=models.CASCADE)
     scoreColumns = models.ManyToManyField('ScoreColumn', through='ScoreDetail', null=True, blank=True)
@@ -170,7 +196,7 @@ class ThesisScore(models.Model):
         return f"{self.council_detail} - {self.thesis}"
 
 
-class ScoreDetail(models.Model):
+class ScoreDetail(BaseModel):
     score = models.FloatField()
     thesis_score = models.ForeignKey(ThesisScore, on_delete=models.CASCADE)
     score_column = models.ForeignKey(ScoreColumn, on_delete=models.CASCADE)
