@@ -118,13 +118,14 @@ class Thesis(BaseModel):
     major = models.ForeignKey(Major, on_delete=models.PROTECT)
     school_year = models.ForeignKey(SchoolYear, on_delete=models.PROTECT)
     council = models.ForeignKey(Council, on_delete=models.PROTECT)
+    reviewer = models.ForeignKey(Lecturer, on_delete=models.PROTECT, default=1, related_name='theses_reviewer')
     lecturers = models.ManyToManyField('Lecturer', through='Supervisor', null=True, blank=True)
 
     def average_score(self):
         total_score = 0.0
         count = 0
 
-        # Lấy danh sách các ScoreDetail của các ThesisScore của đối tượng Thesis hiện tại
+        # Lấy danh sách các ScoreDetail của các ThesisScore thuộc đối tượng Thesis hiện tại
         score_details = ScoreDetail.objects.filter(thesis_score__thesis=self)
 
         for score_detail in score_details:

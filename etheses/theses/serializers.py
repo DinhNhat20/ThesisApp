@@ -53,34 +53,32 @@ class ThesisSerializer(serializers.ModelSerializer):
 
     average_score = serializers.SerializerMethodField()
 
+    # Tính điểm trung bình của khóa luận
     def get_average_score(self, obj):
         return obj.average_score()
 
     class Meta:
         model = Thesis
         fields = ['id', 'code', 'name', 'start_date', 'complete_date', 'average_score', 'result', 'major',
-                  'school_year', 'council', 'lecturers', 'created_date']
+                  'school_year', 'council', 'lecturers', 'created_date', 'report_file', 'reviewer']
 
 
 class Thesis01Serializer(serializers.ModelSerializer):
     class Meta:
         model = Thesis
-        fields = ['id', 'code', 'name', 'start_date', 'complete_date', 'major', 'school_year', 'council',
+        fields = ['id', 'code', 'name', 'start_date', 'complete_date', 'major', 'school_year', 'council', 'reviewer',
                   'created_date']
 
 
-# class CouncilSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Council
-#         fields = '__all__'
-
 class CouncilSerializer(serializers.ModelSerializer):
+    # Phương thức để lấy dữ liệu mở rộng (chi tiết)
     details = serializers.SerializerMethodField()
 
     class Meta:
         model = Council
         fields = ['id', 'name', 'description', 'created_date', 'schoolyear', 'active', 'details']
 
+    # Lấy chi tiết các trường dữ liệu của CouncilDetail thuộc hội đồng của 1 giảng viên cụ thể
     def get_details(self, obj):
         request = self.context.get('request')
         lecturer = Lecturer.objects.get(user=request.user)
@@ -131,6 +129,7 @@ class SupervisorSerializer(serializers.ModelSerializer):
 
 
 class CouncilDetailSerializer(serializers.ModelSerializer):
+    # Lấy dữ liệu name thay cho id của khóa ngoại position
     position = serializers.CharField(source='position.name')
 
     class Meta:
@@ -148,10 +147,12 @@ class CouncilDetail01Serializer(serializers.ModelSerializer):
         fields = ['id', 'position', 'lecturer', 'council']
 
     def create(self, validated_data):
+        # Dữ liệu đã được xác thực từ phía client
         position = validated_data.get('position')
         lecturer = validated_data.get('lecturer')
         council = validated_data.get('council')
 
+        # Tạo đối tượng
         council_detail = CouncilDetail.objects.create(
             position=position,
             lecturer=lecturer,
@@ -183,7 +184,7 @@ class ScoreComponentSerializer(serializers.ModelSerializer):
 
 
 class ScoreColumnSerializer(serializers.ModelSerializer):
-    # score_component = ScoreComponentSerializer()
+    # Lấy dữ liệu name thay cho id của khóa ngoại ScoreComponent
     score_component = serializers.CharField(source='score_component.name', read_only=True)
 
     class Meta:
@@ -205,6 +206,7 @@ class ScoreDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'created_date', 'updated_date', 'active', 'score', 'thesis_score', 'score_column',
                   'score_component_name']
 
+    # Lấy name của Score Component thông qua khóa ngoại Score Column của Score Detail
     def get_score_component_name(self, obj):
         return obj.score_column.score_component.name
 
@@ -248,56 +250,9 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
 
-class ChangePasswordSerializer(serializers.Serializer):
-    current_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-
-    def validate_new_password(self, value):
-        # Bạn có thể thêm các logic xác thực mật khẩu mới tại đây, ví dụ như độ dài, độ phức tạp, v.v.
-        if len(value) < 8:
-            raise serializers.ValidationError("New password must be at least 8 characters long.")
-        return value
-
-
-# Những thay đổi
 class Council01Serializer(serializers.ModelSerializer):
     class Meta:
         model = Council
         fields = '__all__'
 
 
-class Thesis11Serializer(serializers.ModelSerializer):
-    class Meta:
-        model = Thesis
-        fields = ['id', 'name']
-
-
-class Lecturer01Serializer(serializers.ModelSerializer):
-    average_score = serializers.SerializerMethodField()
-    thesis = serializers.SerializerMethodField()
-
-    def get_average_score(self, obj):
-        thesis_scores = ThesisScore.objects.filter(council_detail__lecturer=obj)
-        total_score = 0.0
-        count = 0
-
-        for thesis_score in thesis_scores:
-            score_details = ScoreDetail.objects.filter(thesis_score=thesis_score)
-            for score_detail in score_details:
-                total_score += score_detail.score
-                count += 1
-
-        if count > 0:
-            average = round(total_score / count, 2)
-        else:
-            average = 0.0
-
-        return average
-
-    def get_thesis(self, obj):
-        theses = Thesis.objects.filter(lecturers=obj)
-        return Thesis11Serializer(theses, many=True).data
-
-    class Meta:
-        model = Lecturer
-        fields = ['full_name', 'average_score', 'thesis']

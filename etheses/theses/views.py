@@ -46,6 +46,7 @@ class ThesisViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    # Thống kê điểm trung bình của các khóa luận qua từng năm học
     @action(detail=False, methods=['get'], url_path='average-score-by-school-year')
     def average_score_by_school_year(self, request):
         # Truy vấn để tính trung bình điểm theo năm học
@@ -84,8 +85,6 @@ class CouncilViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CouncilSerializer
     permission_classes = [IsAuthenticated]
 
-    # pagination_class = paginators.commonPaginator
-
     def get_queryset(self):
         queryset = self.queryset
 
@@ -95,19 +94,15 @@ class CouncilViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    # Lấy danh sách các khóa luận của 1 council
     @action(methods=['get'], url_path='theses', detail=True)
     def get_theses(self, request, pk):
         theses = self.get_object().thesis_set.filter(active=True)
         return Response(serializers.ThesisSerializer(theses, many=True).data,
                         status=status.HTTP_200_OK)
 
-    # @action(methods=['get'], url_path='contain-than-5-thesis', detail=True)
-    # def get_contain_than_5_thesis(self, request, pk):
-    #     councils = Council.objects.annotate(thesis_count=Count('thesis')).filter(thesis_count__lt=5)
-    #     serializer = CouncilSerializer(councils, many=True)
-    #     return Response(serializer.data)
 
-
+# Danh sách hội đồng có số lượng khóa luận nhỏ hơn 5
 class CouncilContainThan5ThesisViewSet(viewsets.ModelViewSet):
     queryset = Council.objects.annotate(thesis_count=Count('thesis')).filter(thesis_count__lt=5)
     serializer_class = Council01Serializer
@@ -117,8 +112,7 @@ class CouncilContainThan5ThesisViewSet(viewsets.ModelViewSet):
 class DepartmentAdminViewSet(viewsets.ModelViewSet):
     queryset = DepartmentAdmin.objects.all()
     serializer_class = serializers.DepartmentAdminSerializer
-
-    # pagination_class = paginators.commonPaginator
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -138,10 +132,7 @@ class DepartmentAdminViewSet(viewsets.ModelViewSet):
 class LecturerViewSet(viewsets.ModelViewSet):
     queryset = Lecturer.objects.all()
     serializer_class = serializers.LecturerSerializer
-
-    # pagination_class = paginators.commonPaginator
-
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -161,8 +152,7 @@ class LecturerViewSet(viewsets.ModelViewSet):
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = serializers.StudentSerializer
-
-    # pagination_class = paginators.commonPaginator
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         queryset = self.queryset
@@ -207,8 +197,6 @@ class MajorViewSet(viewsets.ModelViewSet):
     queryset = Major.objects.all()
     serializer_class = serializers.MajorSerializer
 
-    # pagination_class = paginators.commonPaginator
-
     def get_queryset(self):
         queryset = self.queryset
 
@@ -224,6 +212,7 @@ class MajorViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+# Thống kê tần suất tham gia khóa luận của các nghành
 class MajorFrequencyViewSet(viewsets.ModelViewSet):
     queryset = Major.objects.annotate(thesis_count=Count('thesis'))
     serializer_class = serializers.MajorFrequencySerializer
@@ -233,7 +222,6 @@ class MajorFrequencyViewSet(viewsets.ModelViewSet):
 class SchoolYearViewSet(viewsets.ModelViewSet):
     queryset = SchoolYear.objects.all()
     serializer_class = serializers.SchoolYearSerializer
-    # pagination_class = paginators.commonPaginator
 
 
 class PositionViewSet(viewsets.ModelViewSet):
@@ -273,8 +261,7 @@ class ThesisScoreViewSet(viewsets.ModelViewSet):
     queryset = ThesisScore.objects.all()
     serializer_class = serializers.ThesisScoreSerializer
 
-    # pagination_class = paginators.commonPaginator
-
+    # Lấy danh sách các ThesisScore chứa dữ liệu được truyền vào là council_id và thesis_id
     def get_queryset(self):
         queryset = super().get_queryset()
 
@@ -296,15 +283,13 @@ class ScoreComponentViewSet(viewsets.ModelViewSet):
 class ScoreColumnViewSet(viewsets.ModelViewSet):
     queryset = ScoreColumn.objects.all()
     serializer_class = serializers.ScoreColumnSerializer
-    # pagination_class = paginators.commonPaginator
 
 
 class ScoreDetailViewSet(viewsets.ModelViewSet):
     queryset = ScoreDetail.objects.all()
     serializer_class = serializers.ScoreDetailSerializer
 
-    # pagination_class = paginators.commonPaginator
-
+    # Lấy danh sách ScoreDetail theo thesis_score_id
     def get_queryset(self):
         queryset = self.queryset
 
@@ -355,7 +340,6 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializers.UserSerializer(user).data)
-
 
 
 def user_login(request):
@@ -410,6 +394,7 @@ class LecturerCouncilsViewSet(viewsets.ViewSet, generics.ListAPIView):
         return Response(serializer.data)
 
 
+# Lấy danh sách sinh viên chưa có khóa luận
 class StudentsWithoutThesisView(viewsets.ModelViewSet):
     queryset = Student.objects.filter(thesis__isnull=True)
     serializer_class = StudentSerializer
@@ -421,7 +406,6 @@ class Council01ViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.Council01Serializer
     pagination_class = paginators.CouncilPaginator
 
-    # pagination_class = paginators.commonPaginator
 
     def get_queryset(self):
         queryset = self.queryset
@@ -437,26 +421,3 @@ class Council01ViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    # def send_reviewer_email(self, council, lecturer):
-    #     lecturer_email = lecturer.user.email
-    #     lecturer_name = lecturer.full_name
-    #     council_name = council.name
-    #     subject = f'Bạn đã được giao làm phản biện cho hội đồng "{council_name}"'
-    #     message = (
-    #         f'Chào {lecturer_name}\nBạn đã được giao vai trò phản biện cho hội đồng "{council_name}".\n'
-    #         'Vui lòng chuẩn bị và liên hệ với các thành viên khác trong hội đồng để hoàn thành nhiệm vụ của mình.\n'
-    #         '__Giáo vụ__'
-    #     )
-    #
-    #     from_email = 'Thesis Management <{}>'.format(settings.DEFAULT_FROM_EMAIL)
-    #
-    #     email = EmailMessage(subject, message, from_email, to=[lecturer_email])
-    #     email.send()
-
-
-
-
-
-class Lecturer01ViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Lecturer.objects.all()
-    serializer_class = serializers.Lecturer01Serializer

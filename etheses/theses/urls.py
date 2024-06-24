@@ -31,7 +31,6 @@ r.register('councils-contain-than-5-thesis', views.CouncilContainThan5ThesisView
 r.register('create_council_detail', views.CouncilDetail01Serializer, 'create_council_detail'),
 r.register('councils01', views.Council01ViewSet, 'councils01'),
 r.register('major_frequency', views.MajorFrequencyViewSet, 'major_frequency'),
-r.register('thesis-list', views.Lecturer01ViewSet, 'thesis-list'),
 
 urlpatterns = [
     path('', include(r.urls)),
